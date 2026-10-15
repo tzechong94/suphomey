@@ -1,0 +1,37 @@
+name: Deploy to AWS
+
+# Manual only: the stack has always-on costs (NAT gateway, ALB, RDS), so nothing deploys on push.
+on:
+  workflow_dispatch:
+
+permissions:
+  id-token: write # OIDC: GitHub issues a short-lived identity token that AWS exchanges for temporary credentials
+  contents: read
+
+concurrency:
+  group: deploy-aws
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: CDK deploy
+    runs-on: ubuntu-latest
+    environment: aws
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm --filter infra test
+      - uses: aws-actions/configure-aws-credentials@v6
+        with:
+          role-to-assume: ${{ vars.AWS_DEPLOY_ROLE_ARN }}
+          aws-region: ap-southeast-1
+      # CDK builds the web and ingest images from the Dockerfile and pushes them to ECR.
+      - run: >-
+          pnpm --filter infra exec cdk deploy --require-approval never
+          -c cloudFrontPrefixListId=${{ vars.CLOUDFRONT_PREFIX_LIST_ID }}
+          -c alarmEmail=${{ vars.ALARM_EMAIL }}

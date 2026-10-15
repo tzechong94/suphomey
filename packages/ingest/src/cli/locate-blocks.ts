@@ -5,6 +5,7 @@ import { readCsv } from '../csv';
 import { DATASETS } from '../datasets';
 import { geocodeBlock } from '../geocode';
 import { codeFromAnchor, findBuilding, indexBuildings, matchStreets, toBuildings, type BuildingFeature } from '../locate';
+import { oneMapTokenProvider } from '../onemap-auth';
 import { OneMapCache } from '../onemap-cache';
 import { RAW_DIR, SEED_DIR } from '../paths';
 
@@ -42,7 +43,8 @@ const codeByStreet = new Map(matched.map((m) => [m.street, m.code]));
 console.log(`${keys.size} blocks on ${blocksByStreet.size} streets: ${matched.length} streets matched, ${ambiguous.length} need an anchor`);
 
 const cache = await OneMapCache.load();
-const oneMap = (key: string) => cache.get(key, () => geocodeBlock(key, process.env.ONEMAP_TOKEN || undefined));
+const oneMapToken = oneMapTokenProvider();
+const oneMap = (key: string) => cache.get(key, async () => geocodeBlock(key, await oneMapToken()));
 
 // Resolve each ambiguous street with up to three anchor blocks.
 for (const street of ambiguous) {

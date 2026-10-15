@@ -1,8 +1,10 @@
 # Infrastructure (AWS CDK)
 
 [`lib/suphomey-stack.ts`](lib/suphomey-stack.ts) defines the production deployment on AWS. Deploying
-is optional for this project (the live demo runs on Vercel + Neon), but the stack synthesises,
-is unit tested, and is deployable as is.
+is optional for this project, and the demo runs on Vercel + Neon instead to avoid the always-on
+cost (below). What is verified: the stack synthesises without warnings and its tests pass in CI.
+What is not: it has not been deployed to a real AWS account, so expect first-deploy issues of the
+kind synthesis cannot catch (service quotas, image build on your machine, the prefix list ID).
 
 ```
 Users ──HTTPS──> CloudFront ──HTTP──> ALB (public subnets, CloudFront prefix list only)
@@ -62,6 +64,23 @@ Prerequisites: AWS credentials, Docker running (CDK builds and pushes the images
    ```
 
 4. Open the `Url` output.
+
+## Deploying from GitHub Actions
+
+[`.github/workflows/deploy-aws.yml`](../.github/workflows/deploy-aws.yml) runs the infra tests and then
+`cdk deploy`. It is manual only (Actions > Deploy to AWS > Run workflow), because every deploy has a
+running cost. It holds no AWS keys: GitHub signs a short-lived OIDC token for the run, and AWS trades it
+for temporary credentials of a role that trusts only this repository.
+
+One-time setup in AWS (after `cdk bootstrap`):
+
+1. IAM > Identity providers: add `token.actions.githubusercontent.com` (audience `sts.amazonaws.com`).
+2. Create a role trusted by that provider, with the condition
+   `token.actions.githubusercontent.com:sub` = `repo:<owner>/<repo>:environment:aws`, allowed to
+   `sts:AssumeRole` the CDK bootstrap roles (`arn:aws:iam::<account>:role/cdk-hnb659fds-*`).
+
+Then in GitHub, create an environment named `aws` (add required reviewers there for an approval step) with
+these variables: `AWS_DEPLOY_ROLE_ARN`, `CLOUDFRONT_PREFIX_LIST_ID`, and optionally `ALARM_EMAIL`.
 
 ## Cost (rough, ap-southeast-1, on demand)
 

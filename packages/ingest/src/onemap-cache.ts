@@ -9,7 +9,7 @@ const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
 /**
  * File-backed cache of OneMap answers (hits and confirmed misses), committed to
- * the repo. Without a token OneMap rate limits aggressively, so calls are spaced
+ * the repo. Without a token (see onemap-auth.ts) OneMap rate limits aggressively, so calls are spaced
  * out and HTTP 429s back off exponentially.
  */
 export class OneMapCache {

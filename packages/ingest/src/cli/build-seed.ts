@@ -8,6 +8,7 @@ import { DATASETS, type DatasetKey } from '../datasets';
 import type { FeatureCollection } from '../geojson';
 import { geocodePostal, postalCacheKey } from '../geocode';
 import { toBuildings, type BuildingFeature } from '../locate';
+import { oneMapTokenProvider } from '../onemap-auth';
 import { OneMapCache } from '../onemap-cache';
 import {
   parseCarparks,
@@ -102,10 +103,11 @@ const buildings = toBuildings((await geo<{ features: BuildingFeature[] }>('hdbBu
 const byPostal = new Map<string, LatLng>(buildings.map((b) => [b.postal, b.centre]));
 
 const cache = await OneMapCache.load();
+const oneMapToken = oneMapTokenProvider();
 const schools: Amenity[] = [];
 let schoolMisses = 0;
 for (const s of parseSchools(await csv('schools'), await csv('schoolProgrammes'))) {
-  const hit = await cache.get(postalCacheKey(s.postal), () => geocodePostal(s.postal, process.env.ONEMAP_TOKEN || undefined));
+  const hit = await cache.get(postalCacheKey(s.postal), async () => geocodePostal(s.postal, await oneMapToken()));
   if (hit) schools.push({ ...s, lat: hit.lat, lng: hit.lng });
   else schoolMisses++;
 }

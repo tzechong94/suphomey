@@ -64,7 +64,7 @@ pnpm ingest                   # or one job: pnpm ingest rentals
 ## Tests
 
 ```bash
-pnpm test         # 98 unit and integration tests across all packages; no database or server needed
+pnpm test         # 102 unit and integration tests across all packages; no database or server needed
 pnpm typecheck
 pnpm lint
 pnpm e2e          # 12 Playwright tests (6 journeys x desktop and mobile); needs the app running
@@ -104,7 +104,7 @@ are in [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
 | Data | PostgreSQL, Drizzle ORM, Zod |
 | Ingestion | Node 22, csv-parse, k-d tree / R-tree spatial indexes (kdbush, flatbush), proj4 |
 | Tests | Vitest, PGlite, Testing Library, Playwright, CDK assertions |
-| Infra | Vercel + Neon (live), AWS CDK: CloudFront, ALB, ECS Fargate, RDS, EventBridge Scheduler, Secrets Manager, CloudWatch |
+| Infra | Vercel + Neon (demo), AWS CDK (production design): CloudFront, ALB, ECS Fargate, RDS, EventBridge Scheduler, Secrets Manager, CloudWatch |
 | Tooling | pnpm workspaces, ESLint, Docker Compose, GitHub Actions |
 
 ```
@@ -120,10 +120,18 @@ docs              Architecture, data notes, deployment
 
 ## Deployment
 
-- **Vercel + Neon** (live demo): [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md). Daily refresh via Vercel
-  Cron, functions pinned to Singapore next to the database.
-- **AWS** (Infrastructure as Code): [infra/README.md](infra/README.md). The same Docker image runs
-  on ECS Fargate behind CloudFront, with RDS and a scheduled ingest task.
+There are two deployment targets, on purpose:
+
+- **AWS is the production design, as Infrastructure as Code** ([`infra/`](infra/README.md), AWS CDK
+  in TypeScript). It defines everything needed to deploy and operate the app: network, database,
+  containers, CDN, secrets, the daily data refresh, logs and alarms. Its 9 tests run in CI, and
+  [`deploy-aws.yml`](.github/workflows/deploy-aws.yml) deploys it from GitHub Actions on demand. It
+  has not been deployed to a real AWS account, since the always-on parts cost roughly USD 120 to 150
+  a month.
+- **Vercel + Neon hosts the demo** ([docs/DEPLOYMENT.md](docs/DEPLOYMENT.md)) at a cost of nothing.
+  Daily refresh via Vercel Cron, functions pinned to Singapore next to the database.
+
+Both run the same code against Postgres; only the hosting differs.
 
 ## Insights (snapshot of 15 Oct 2026)
 

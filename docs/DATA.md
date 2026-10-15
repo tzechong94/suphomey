@@ -2,8 +2,13 @@
 
 Everything comes from [data.gov.sg](https://data.gov.sg) (Singapore Open Data Licence), except
 [OneMap](https://www.onemap.gov.sg) (© Singapore Land Authority), used at build time for 574
-lookups (blocks on ambiguous streets and school postal codes), cached in `data/seed/onemap-cache.csv`. Map tiles are
-from [OpenFreeMap](https://openfreemap.org) (© OpenMapTiles, © OpenStreetMap contributors). Dataset IDs are in
+lookups (blocks on ambiguous streets and school postal codes), cached in `data/seed/onemap-cache.csv`.
+Rebuilding the seed only calls OneMap for keys missing from that cache; set `ONEMAP_API_EMAIL` and
+`ONEMAP_API_PASSWORD` to make those calls authenticated. OneMap tokens expire after 72 hours, so
+[`onemap-auth.ts`](../packages/ingest/src/onemap-auth.ts) requests one on first use and a new one
+shortly before each expires.
+
+Map tiles are from [OpenFreeMap](https://openfreemap.org) (© OpenMapTiles, © OpenStreetMap contributors). Dataset IDs are in
 [`packages/ingest/src/datasets.ts`](../packages/ingest/src/datasets.ts); all were checked against the
 live catalogue on 2026-10-15.
 
