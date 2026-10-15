@@ -17,3 +17,7 @@ data/raw
 
 # Copied from node_modules at dev/build time.
 apps/web/public/maplibre
+
+# Written by `next dev` (agent instructions for AI coding tools); not part of the project.
+apps/web/AGENTS.md
+apps/web/CLAUDE.md
