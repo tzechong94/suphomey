@@ -1,0 +1,65 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  checks:
+    name: Typecheck, lint, unit and integration tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm typecheck
+      - run: pnpm lint
+      # Database tests use PGlite (in-memory Postgres); infra tests synthesise the CDK stack. No services needed.
+      - run: pnpm test
+
+  e2e:
+    name: End-to-end (Playwright)
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:18-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: suphomey
+        ports: ['5432:5432']
+        options: --health-cmd "pg_isready -U postgres" --health-interval 2s --health-retries 20
+    env:
+      DATABASE_URL: postgres://postgres:postgres@localhost:5432/suphomey
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm db:migrate
+      - run: pnpm db:seed
+      - run: pnpm build
+      - run: pnpm --filter e2e exec playwright install --with-deps chromium
+      - name: Start the production server
+        run: |
+          pnpm --filter web start &
+          for i in $(seq 1 60); do curl -sf http://localhost:3000/api/health > /dev/null && exit 0; sleep 1; done
+          echo "Server did not become healthy" && exit 1
+      - run: pnpm e2e
+      - if: failure()
+        uses: actions/upload-artifact@v6
+        with:
+          name: playwright-traces
+          path: e2e/test-results

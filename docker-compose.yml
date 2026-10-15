@@ -1,0 +1,45 @@
+services:
+  db:
+    image: postgres:18-alpine
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: suphomey
+    ports:
+      # Loopback only: the default credentials must not be reachable from the network.
+      # 5434 on the host so it does not clash with a local Postgres or other compose projects.
+      - "127.0.0.1:5434:5432"
+    volumes:
+      - db-data:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d suphomey"]
+      interval: 2s
+      timeout: 5s
+      retries: 20
+
+  # Full stack without Node installed: docker compose --profile app up --build
+  seed:
+    profiles: [app]
+    build: { context: ., target: ingest }
+    environment:
+      DATABASE_URL: postgres://postgres:postgres@db:5432/suphomey
+    # Migrate, then load the committed snapshot. Safe to rerun: the seed replaces all data.
+    command: ["sh", "-c", "pnpm db:migrate && pnpm db:seed"]
+    depends_on:
+      db:
+        condition: service_healthy
+
+  web:
+    profiles: [app]
+    build: { context: ., target: web }
+    environment:
+      DATABASE_URL: postgres://postgres:postgres@db:5432/suphomey
+    ports:
+      # Loopback only: the app has no login, so it should not be reachable from the network.
+      - "127.0.0.1:3000:3000"
+    depends_on:
+      seed:
+        condition: service_completed_successfully
+
+volumes:
+  db-data:

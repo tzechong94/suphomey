@@ -1,0 +1,24 @@
+{
+  "name": "suphomey",
+  "private": true,
+  "packageManager": "pnpm@10.20.0",
+  "scripts": {
+    "dev": "pnpm --filter web dev",
+    "build": "pnpm --filter web build",
+    "typecheck": "pnpm -r typecheck",
+    "lint": "pnpm -r lint",
+    "test": "pnpm -r test",
+    "e2e": "pnpm --filter e2e e2e",
+    "db:migrate": "pnpm --filter @suphomey/db db:migrate",
+    "db:seed": "pnpm --filter @suphomey/ingest seed",
+    "ingest": "pnpm --filter @suphomey/ingest ingest",
+    "download": "pnpm --filter @suphomey/ingest download",
+    "locate-blocks": "pnpm --filter @suphomey/ingest locate-blocks",
+    "build-seed": "pnpm --filter @suphomey/ingest build-seed"
+  },
+  "devDependencies": {
+    "typescript-eslint": "8.71.0",
+    "eslint": "10.11.0",
+    "typescript": "6.0.3"
+  }
+}

@@ -1,0 +1,38 @@
+{
+  "name": "@suphomey/ingest",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "locate-blocks": "tsx --env-file-if-exists=../../.env src/cli/locate-blocks.ts",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint .",
+    "test": "vitest run",
+    "download": "tsx --env-file-if-exists=../../.env src/cli/download.ts",
+    "build-seed": "NODE_OPTIONS=--max-old-space-size=6144 tsx --env-file-if-exists=../../.env src/cli/build-seed.ts",
+    "seed": "tsx --env-file-if-exists=../../.env src/cli/seed.ts",
+    "ingest": "tsx --env-file-if-exists=../../.env src/cli/ingest.ts"
+  },
+  "dependencies": {
+    "@suphomey/core": "workspace:*",
+    "@suphomey/db": "workspace:*",
+    "csv-parse": "7.0.3",
+    "drizzle-orm": "0.45.3",
+    "flatbush": "4.6.2",
+    "geokdbush": "2.1.0",
+    "kdbush": "4.1.0",
+    "proj4": "2.22.0",
+    "zod": "4.6.5"
+  },
+  "devDependencies": {
+    "@electric-sql/pglite": "0.5.8",
+    "@types/node": "22.20.4",
+    "eslint": "10.11.0",
+    "tsx": "4.23.15",
+    "typescript": "6.0.3",
+    "typescript-eslint": "8.71.0",
+    "vitest": "5.0.3"
+  }
+}

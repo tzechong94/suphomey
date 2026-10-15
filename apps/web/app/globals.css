@@ -1,0 +1,100 @@
+@import "tailwindcss";
+
+/*
+ * suphomey palette: the pastels HDB repaints its blocks in, on warm paper,
+ * with a dark ink for borders and text. Sticker-style UI = 2px ink borders
+ * plus a hard offset shadow.
+ */
+:root {
+  --paper: #fbf7f0;
+  --paper-2: #f4eee3;
+  --card: #ffffff;
+  --ink: #1f2430;
+  --ink-2: #4b5160;
+  --ink-3: #7c8291;
+  --line: #e4ddd0;
+  --mint: #bde7d6;
+  --peach: #ffd2b8;
+  --butter: #ffe9a8;
+  --sky: #c9ddf7;
+  --lilac: #e3d5f5;
+  --coral: #ff7a59;
+  --teal: #0f766e;
+  --great: #0f766e;
+  --good: #3f9d6b;
+  --neutral: #b08a2e;
+  --warn: #d9772b;
+  --bad: #d64545;
+}
+
+@theme inline {
+  --color-paper: var(--paper);
+  --color-paper-2: var(--paper-2);
+  --color-card: var(--card);
+  --color-ink: var(--ink);
+  --color-ink-2: var(--ink-2);
+  --color-ink-3: var(--ink-3);
+  --color-line: var(--line);
+  --color-mint: var(--mint);
+  --color-peach: var(--peach);
+  --color-butter: var(--butter);
+  --color-sky: var(--sky);
+  --color-lilac: var(--lilac);
+  --color-coral: var(--coral);
+  --color-teal: var(--teal);
+  --color-great: var(--great);
+  --color-good: var(--good);
+  --color-neutral: var(--neutral);
+  --color-warn: var(--warn);
+  --color-bad: var(--bad);
+  --font-display: var(--font-bricolage), ui-rounded, system-ui, sans-serif;
+  --font-sans: var(--font-jakarta), system-ui, sans-serif;
+  --shadow-sticker: 3px 3px 0 0 var(--ink);
+  --shadow-sticker-lg: 5px 5px 0 0 var(--ink);
+}
+
+html {
+  background: var(--paper);
+  color: var(--ink);
+  -webkit-font-smoothing: antialiased;
+}
+
+body {
+  font-family: var(--font-sans);
+  min-height: 100dvh;
+}
+
+::selection {
+  background: var(--butter);
+}
+
+/* Keyboard focus is always visible, never just a colour change. */
+:focus-visible {
+  outline: 3px solid var(--coral);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* MapLibre popups restyled as stickers. */
+.maplibregl-popup-content {
+  border: 2px solid var(--ink);
+  border-radius: 14px;
+  box-shadow: var(--shadow-sticker);
+  padding: 10px 12px;
+  font-family: var(--font-sans);
+}
+.maplibregl-popup-tip {
+  display: none;
+}
+.maplibregl-ctrl-attrib {
+  font-size: 10px;
+}

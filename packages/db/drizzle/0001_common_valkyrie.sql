@@ -1,0 +1,2 @@
+ALTER TABLE "block_summary" ADD COLUMN "rent_counts" jsonb DEFAULT '{}'::jsonb NOT NULL;--> statement-breakpoint
+ALTER TABLE "block_summary" ADD COLUMN "price_counts" jsonb DEFAULT '{}'::jsonb NOT NULL;
