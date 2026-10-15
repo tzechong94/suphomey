@@ -58,6 +58,8 @@ const STREET_ABBREVIATIONS: Record<string, string> = {
   TG: 'TANJONG',
   UPP: 'UPPER',
   GDNS: 'GARDENS',
+  GDN: 'GARDEN',
+  SQ: 'SQUARE',
   PK: 'PARK',
   TER: 'TERRACE',
   HTS: 'HEIGHTS',

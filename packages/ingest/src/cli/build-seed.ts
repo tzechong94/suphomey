@@ -114,7 +114,17 @@ for (const s of parseSchools(await csv('schools'), await csv('schoolProgrammes')
 console.log(`schools: ${schools.length} placed, ${schoolMisses} not found (${cache.calls} OneMap calls)`);
 
 const thisMonth = sgDate().slice(0, 7);
-const preschools = parsePreschools(await csv('preschoolCentres'), await geo('preschoolLocations'), (p) => byPostal.get(p), thisMonth);
+const [preschoolCentres, preschoolLocations] = [await csv('preschoolCentres'), await geo('preschoolLocations')];
+// Centres in neither ECDA's location layer nor an HDB footprint are looked up on OneMap by postal code.
+const unplacedPostals = new Set<string>();
+parsePreschools(preschoolCentres, preschoolLocations, (p) => byPostal.get(p) ?? void unplacedPostals.add(p), thisMonth);
+const byOneMapPostal = new Map<string, LatLng>();
+for (const postal of unplacedPostals) {
+  if (!/^\d{6}$/.test(postal) || postal === '000000') continue;
+  const hit = await cache.get(postalCacheKey(postal), async () => geocodePostal(postal, await oneMapToken()));
+  if (hit) byOneMapPostal.set(postal, hit);
+}
+const preschools = parsePreschools(preschoolCentres, preschoolLocations, (p) => byPostal.get(p) ?? byOneMapPostal.get(p), thisMonth);
 console.log(`preschools: ${preschools.amenities.length} placed, ${preschools.unplaced} without a location`);
 
 const parks = parseParks(await geo('parks'));

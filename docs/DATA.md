@@ -1,8 +1,8 @@
 # Data
 
 Everything comes from [data.gov.sg](https://data.gov.sg) (Singapore Open Data Licence), except
-[OneMap](https://www.onemap.gov.sg) (© Singapore Land Authority), used at build time for 574
-lookups (blocks on ambiguous streets and school postal codes), cached in `data/seed/onemap-cache.csv`.
+[OneMap](https://www.onemap.gov.sg) (© Singapore Land Authority), used at build time for 672
+lookups (blocks on ambiguous streets or missing from the footprints, and school and preschool postal codes), cached in `data/seed/onemap-cache.csv`.
 Rebuilding the seed only calls OneMap for keys missing from that cache; set `ONEMAP_API_EMAIL` and
 `ONEMAP_API_PASSWORD` to make those calls authenticated. OneMap tokens expire after 72 hours, so
 [`onemap-auth.ts`](../packages/ingest/src/onemap-auth.ts) requests one on first use and a new one
@@ -50,10 +50,15 @@ footprints, which have a postal code and outline for every block but only an opa
 (`ST_COD`). A street's set of block numbers works as a fingerprint, so each street name is matched to
 the code with the most similar block set (Jaccard similarity), accepted only when it is a clear winner
 and the matched buildings sit close together. The 86 ambiguous streets were resolved with one OneMap
-lookup each. Result: 10,789 of 10,836 blocks located (99.6%). Against 146 independent OneMap results,
-the median error is 8 m and the worst 82 m (footprint centre against address point). The 47
-unlocated blocks are new Tengah and Woodlands Square blocks and Tanglin Halt blocks being
-redeveloped, none of which OneMap knows yet.
+lookup each. Blocks not in the footprints yet (new Tengah and Woodlands Square blocks) are looked up
+on OneMap directly. Result: 10,827 of 10,836 blocks located (99.9%). Against 146 independent OneMap
+results, the median error is 8 m and the worst 82 m (footprint centre against address point). The 9
+unlocated blocks are at Tanglin Halt, being redeveloped, and OneMap no longer lists them.
+
+A first build left 47 blocks unlocated because HDB abbreviates "Garden" as `GDN` and "Square" as `SQ`,
+and the street expansion table had neither: the search sent "TENGAH GDN AVE", OneMap answered
+"TENGAH GARDEN AVENUE", and the street check rightly rejected a road name missing the word "GDN".
+Adding both abbreviations located 38 of them.
 
 **Many blocks have very few rentals.** 4,212 block and flat type pairs have exactly one rental in the
 last 12 months, sometimes far from the market rate (one 4-room in Sengkang rents at $1,500 against a
@@ -79,7 +84,8 @@ Between spaces it was a dash and is shown as a colon; elsewhere it was an apostr
 relative to the month the file is published. Each centre also has its own `last_updated`, from
 January to October 2026 in the current file; listings more than three months older than the file are
 flagged as possibly stale. 171 centres in the ECDA listing match neither the location layer nor an
-HDB postal code and are left out.
+HDB postal code; they are placed by an exact postal code match on OneMap, so all 1,795 centres are on
+the map.
 
 **Unusable datasets.** "Flood Prone Areas" sounds useful but is 4 rows of total hectares per year, with
 no locations, so it is not used.

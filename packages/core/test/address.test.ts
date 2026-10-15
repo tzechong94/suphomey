@@ -27,6 +27,8 @@ describe('street names', () => {
   it('expands HDB abbreviations', () => {
     expect(expandStreet("C'WEALTH CRES")).toBe('COMMONWEALTH CRESCENT');
     expect(expandStreet('BT BATOK WEST AVE 6')).toBe('BUKIT BATOK WEST AVENUE 6');
+    expect(expandStreet('TENGAH GDN AVE')).toBe('TENGAH GARDEN AVENUE');
+    expect(expandStreet('WOODLANDS SQ')).toBe('WOODLANDS SQUARE');
   });
 
   it('formats for display', () => {
