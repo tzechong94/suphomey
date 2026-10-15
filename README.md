@@ -69,7 +69,7 @@ pnpm ingest                   # or one job: pnpm ingest rentals
 pnpm test         # 102 unit and integration tests across all packages; no database or server needed
 pnpm typecheck
 pnpm lint
-pnpm e2e          # 12 Playwright tests (6 journeys x desktop and mobile); needs the app running
+pnpm e2e          # 14 Playwright tests (7 journeys x desktop and mobile); needs the app running
 ```
 
 | Layer | What is tested | How |

@@ -1,8 +1,9 @@
 'use client';
 
-import { Heart, Scale } from 'lucide-react';
+import { Heart, Menu, Scale } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { DropdownMenu } from 'radix-ui';
 import { cn } from '@/lib/cn';
 import { useSavedList } from '@/lib/client/saved';
 
@@ -15,6 +16,7 @@ const NAV = [
 
 export function SiteHeader() {
   const pathname = usePathname();
+  const isActive = (href: string) => (href === '/' ? pathname === '/' : pathname.startsWith(href));
   const shortlist = useSavedList('shortlist');
   const compare = useSavedList('compare');
   return (
@@ -28,9 +30,9 @@ export function SiteHeader() {
             🏠
           </span>
         </Link>
-        <nav aria-label="Main" className="ml-2 flex flex-1 items-center gap-1 overflow-x-auto">
+        <nav aria-label="Main" className="ml-2 hidden flex-1 items-center gap-1 lg:flex">
           {NAV.map((item) => {
-            const active = item.href === '/' ? pathname === '/' : pathname.startsWith(item.href);
+            const active = isActive(item.href);
             return (
               <Link
                 key={item.href}
@@ -46,10 +48,48 @@ export function SiteHeader() {
             );
           })}
         </nav>
+        <div className="flex-1 lg:hidden" />
         <CountLink href={`/compare?ids=${compare.ids.join(',')}`} label="Compare" count={compare.ids.length} icon={<Scale className="size-4" />} />
         <CountLink href="/shortlist" label="Shortlist" count={shortlist.ids.length} icon={<Heart className="size-4" />} />
+        <MobileMenu isActive={isActive} />
       </div>
     </header>
+  );
+}
+
+/** Below lg the pill nav does not fit beside the logo, so it collapses into a menu. */
+function MobileMenu({ isActive }: { isActive: (href: string) => boolean }) {
+  return (
+    <DropdownMenu.Root modal={false}>
+      <DropdownMenu.Trigger
+        aria-label="Menu"
+        className="inline-flex items-center rounded-xl border-2 border-ink bg-card px-2.5 py-1.5 shadow-sticker hover:bg-paper-2 lg:hidden"
+      >
+        <Menu className="size-4" />
+      </DropdownMenu.Trigger>
+      <DropdownMenu.Portal>
+        <DropdownMenu.Content
+          align="end"
+          sideOffset={8}
+          className="z-40 min-w-48 rounded-2xl border-2 border-ink bg-paper p-1.5 shadow-sticker-lg"
+        >
+          {NAV.map((item) => (
+            <DropdownMenu.Item key={item.href} asChild>
+              <Link
+                href={item.href}
+                aria-current={isActive(item.href) ? 'page' : undefined}
+                className={cn(
+                  'block rounded-xl px-3 py-2 text-sm font-semibold text-ink-2 outline-none data-[highlighted]:bg-paper-2 data-[highlighted]:text-ink',
+                  isActive(item.href) && 'bg-ink text-paper data-[highlighted]:bg-ink data-[highlighted]:text-paper',
+                )}
+              >
+                {item.label}
+              </Link>
+            </DropdownMenu.Item>
+          ))}
+        </DropdownMenu.Content>
+      </DropdownMenu.Portal>
+    </DropdownMenu.Root>
   );
 }
 

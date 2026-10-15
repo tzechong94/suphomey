@@ -20,7 +20,7 @@ const BlockMap = dynamic(() => import('../block-map'), {
   loading: () => <div className="grid h-full place-items-center bg-paper-2 text-sm text-ink-3">Unfolding the map…</div>,
 });
 
-const PAGE = 30;
+const PAGE = 10;
 
 export function Explore() {
   const router = useRouter();

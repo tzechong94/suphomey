@@ -69,3 +69,16 @@ test('the tea page renders its insights', async ({ page }) => {
   await expect(page.getByRole('heading', { name: 'How rents moved since 2021' })).toBeVisible();
   await expect(page.getByText(/Within 300 m: \d+% more per m²/)).toBeVisible();
 });
+
+test('main navigation fits the screen, collapsing into a menu on phones', async ({ page, isMobile }) => {
+  await page.goto('/check');
+  if (isMobile) {
+    await expect(page.getByRole('navigation', { name: 'Main' })).toBeHidden();
+    await page.getByRole('button', { name: 'Menu' }).click();
+    await page.getByRole('menuitem', { name: 'The Tea' }).click();
+  } else {
+    await page.getByRole('navigation', { name: 'Main' }).getByRole('link', { name: 'The Tea' }).click();
+  }
+  await expect(page).toHaveURL(/\/tea$/);
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+});
