@@ -24,10 +24,10 @@ test database (PGlite) cannot load it, and at this data size precomputation in T
        one-off, local:           daily, Vercel Cron:     live, per request:
   pnpm build-seed               /api/cron/[job]          carpark availability
   (geocode, Master Plan,        (resale, rentals,        (60 s CDN cache)
-   footprints, distances)        vacancies, dengue,
-          |                      closures, upgrading)
+   footprints, distances)        preschool vacancies,
+          |                      hawker closures, dengue)
           v                              |
-   data/seed/*.csv.gz  --seed-->  PostgreSQL (Neon / RDS / Docker)
+   data/seed/*.json.gz --seed-->  PostgreSQL (Neon / RDS / Docker)
      (committed)                         |
                                   packages/db queries
                                          |
