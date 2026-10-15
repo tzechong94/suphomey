@@ -6,6 +6,8 @@ kaypohs (Singlish: nosily looks into) every HDB block in Singapore using about 3
 closure days, schools, preschool vacancies, clinics, parks, live carpark lots, and what the Master
 Plan says will be built next door.
 
+**Live demo: [suphomey.vercel.app](https://suphomey.vercel.app)**
+
 ![Explore: every HDB block coloured by how well it matches your must-haves](docs/images/explore.png)
 
 ## What you can do
@@ -128,7 +130,7 @@ There are two deployment targets, on purpose:
   [`deploy-aws.yml`](.github/workflows/deploy-aws.yml) deploys it from GitHub Actions on demand. It
   has not been deployed to a real AWS account, since the always-on parts cost roughly USD 120 to 150
   a month.
-- **Vercel + Neon hosts the demo** ([docs/DEPLOYMENT.md](docs/DEPLOYMENT.md)) at a cost of nothing.
+- **Vercel + Neon hosts the [live demo](https://suphomey.vercel.app)** ([docs/DEPLOYMENT.md](docs/DEPLOYMENT.md)) at a cost of nothing.
   Daily refresh via Vercel Cron, functions pinned to Singapore next to the database.
 
 Both run the same code against Postgres; only the hosting differs.
